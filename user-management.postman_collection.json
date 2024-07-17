@@ -1,0 +1,282 @@
+{
+	"info": {
+		"_postman_id": "ed8744e2-1f59-45c1-b22a-3a8e2e6a6d24",
+		"name": "user-management",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "19225741"
+	},
+	"item": [
+		{
+			"name": "createUser",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"//Generate data dynamically",
+							"let randomId = Math.floor((Math.random()*100+1));",
+							"let randomString = \"test\"+Math.random().toString(36).substring(2);",
+							"//create variables and store dynamic data",
+							"pm.environment.set(\"id\",randomId);",
+							"pm.collectionVariables.set(\"userName\",randomString);",
+							"pm.collectionVariables.set(\"firstName\",randomString);",
+							"pm.collectionVariables.set(\"lastName\",randomString);",
+							"pm.collectionVariables.set(\"email\",randomString+\"@gmail.com\");",
+							"pm.collectionVariables.set(\"password\",randomString);",
+							"pm.collectionVariables.set(\"phoneNumber\",\"1234567890\");",
+							"pm.collectionVariables.set(\"userStatus\",0);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							" var jsonData = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Validate the response JSON\", function () {",
+							"pm.expect(jsonData).to.have.property(\"code\");",
+							"pm.expect(jsonData).to.have.property(\"type\");",
+							"pm.expect(jsonData).to.have.property(\"message\");",
+							"});",
+							"",
+							"pm.test(\"Verify the values of code, type, message are not null\",()=>{",
+							"pm.expect(jsonData.code).to.not.be.null;",
+							"pm.expect(jsonData.type).to.not.be.null;",
+							"pm.expect(jsonData.message).to.not.be.null;",
+							"})",
+							"pm.test(\"Content-Type is present\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\");",
+							"});",
+							"pm.test(\"Response time is less than 200ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(300);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"id\": \"{{id}}\",\n  \"username\": \"{{userName}}\",\n  \"firstName\": \"{{firstName}}\",\n  \"lastName\": \"{{lastName}}\",\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\",\n  \"phone\": \"{{phoneNumber}}\",\n  \"userStatus\": \"{{userStatus}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{stage_env}}/user",
+					"host": [
+						"{{stage_env}}"
+					],
+					"path": [
+						"user"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getUserDetails",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test(\"Response time is less than 300ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(300);",
+							"});",
+							"// Parse the response body JSON",
+							"const responseBody = pm.response.json();",
+							"",
+							"// Define an array of keys to check for null values",
+							"const keysToCheck = [\"id\", \"username\", \"firstName\", \"lastName\", \"email\", \"password\", \"phone\", \"userStatus\"];",
+							"",
+							"// Check if none of the values are null",
+							"pm.test(\"Validate response body values are not null\", function () {",
+							"    keysToCheck.forEach(key => {",
+							"        pm.expect(responseBody[key]).to.not.be.null;",
+							"    });",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"packages": {},
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "accept",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{stage_env}}/user/{{userName}}",
+					"host": [
+						"{{stage_env}}"
+					],
+					"path": [
+						"user",
+						"{{userName}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "updateUser",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"id\": \"{{id}}\",\n  \"username\": \"{{userName}}\",\n  \"firstName\": \"{{firstName}}\",\n  \"lastName\": \"{{lastName}}\",\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\",\n  \"phone\": \"{{phoneNumber}}\",\n  \"userStatus\": \"{{userStatus}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{stage_env}}/user/{{userName}}",
+					"host": [
+						"{{stage_env}}"
+					],
+					"path": [
+						"user",
+						"{{userName}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deleteUser",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"",
+							"// Unset (delete) all environment variables",
+							"const environmentVariables = [",
+							"    \"id\",",
+							"    \"userName\",",
+							"    \"firstName\",",
+							"    \"lastName\",",
+							"    \"email\",",
+							"    \"password\",",
+							"    \"phoneNumber\",",
+							"    \"userStatus\"",
+							"];",
+							"",
+							"environmentVariables.forEach(variable => {",
+							"    pm.environment.unset(variable);",
+							"});",
+							"",
+							"// Unset (delete) all collection variables",
+							"const collectionVariables = [",
+							"    \"id\",",
+							"    \"userName\",",
+							"    \"firstName\",",
+							"    \"lastName\",",
+							"    \"email\",",
+							"    \"password\",",
+							"    \"phoneNumber\",",
+							"    \"userStatus\"",
+							"];",
+							"",
+							"collectionVariables.forEach(variable => {",
+							"    pm.collectionVariables.unset(variable);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "accept",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{stage_env}}/user/{{userName}}",
+					"host": [
+						"{{stage_env}}"
+					],
+					"path": [
+						"user",
+						"{{userName}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "phone",
+			"value": ""
+		}
+	]
+}
